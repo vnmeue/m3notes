@@ -130,6 +130,12 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.serialization.json)
+    
+    // Coil for image loading
+    implementation(libs.coil.compose)
+    
+    // Gson for type converters
+    implementation("com.google.code.gson:gson:2.10.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

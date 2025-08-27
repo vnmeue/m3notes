@@ -18,6 +18,8 @@ package com.cavin.material3expressivecatalog.di
 import android.content.Context
 import androidx.room.Room
 import com.cavin.material3expressivecatalog.data.local.NotesDatabase
+import com.cavin.material3expressivecatalog.data.local.NotesDatabase.Companion.MIGRATIONS
+import com.cavin.material3expressivecatalog.data.local.NoteDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,10 +37,10 @@ object NotesModule {
         Room.databaseBuilder(
             context,
             NotesDatabase::class.java,
-            "notes.db",
-        ).build()
+            "notes.db"
+        ).addMigrations(*MIGRATIONS).build()
 
     @Provides
     @Singleton
-    fun provideNoteDao(database: NotesDatabase) = database.noteDao()
+    fun provideNoteDao(database: NotesDatabase): NoteDao = database.noteDao()
 }

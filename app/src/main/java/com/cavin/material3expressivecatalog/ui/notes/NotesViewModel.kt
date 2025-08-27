@@ -37,10 +37,25 @@ class NotesViewModel @Inject constructor(private val noteDao: NoteDao) : ViewMod
                 initialValue = emptyList()
             )
 
-    fun upsertNote(title: String, content: String, existing: Note? = null) {
+    fun upsertNote(
+        title: String, 
+        content: String, 
+        existing: Note? = null, 
+        imageUri: String? = null,
+        imageUris: List<String> = emptyList()
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val note = existing?.copy(title = title, content = content)
-                ?: Note(title = title, content = content)
+            val note = existing?.copy(
+                title = title, 
+                content = content,
+                imageUri = imageUri ?: existing.imageUri,
+                imageUris = if (imageUris.isNotEmpty()) imageUris else existing.imageUris
+            ) ?: Note(
+                title = title, 
+                content = content,
+                imageUri = imageUri,
+                imageUris = imageUris
+            )
             noteDao.insertNote(note)
         }
     }

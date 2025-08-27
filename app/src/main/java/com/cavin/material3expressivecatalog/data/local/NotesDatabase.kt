@@ -17,9 +17,34 @@ package com.cavin.material3expressivecatalog.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.cavin.material3expressivecatalog.data.model.Converters
 import com.cavin.material3expressivecatalog.data.model.Note
 
-@Database(entities = [Note::class], version = 1, exportSchema = false)
+private val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // Add the new imageUri column to the notes table
+        database.execSQL("ALTER TABLE notes ADD COLUMN imageUri TEXT")
+    }
+}
+
+private val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // Add the new imageUris column to support multiple images
+        database.execSQL("ALTER TABLE notes ADD COLUMN imageUris TEXT DEFAULT '[]'")
+        // Make content column nullable with default empty string
+        database.execSQL("UPDATE notes SET content = '' WHERE content IS NULL")
+    }
+}
+
+@Database(entities = [Note::class], version = 3, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class NotesDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
+
+    companion object {
+        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
+    }
 }

@@ -35,15 +35,18 @@ fun NavGraphBuilder.notesGraph(
             NotesListScreen(navController = navController)
         }
         composable(
-            route = "note_editor?id={id}",
+            route = "note_editor?id={id}&imageUri={imageUri}",
             arguments = listOf(
-                navArgument("id") { type = NavType.IntType; defaultValue = -1 }
+                navArgument("id") { type = NavType.IntType; defaultValue = -1 },
+                navArgument("imageUri") { type = NavType.StringType; defaultValue = "" }
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: -1
+            val imageUri = backStackEntry.arguments?.getString("imageUri")?.takeIf { it.isNotEmpty() }
             NoteEditorScreen(
                 navController = navController,
-                noteId = if (id == -1) null else id
+                noteId = if (id == -1) null else id,
+                imageUri = imageUri
             )
         }
     }
