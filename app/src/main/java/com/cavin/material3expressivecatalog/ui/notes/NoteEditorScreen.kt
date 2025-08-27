@@ -163,25 +163,6 @@ fun NoteEditorScreen(
                 )
             ) {
                 if (isExpanded) {
-                    // Save button
-                    ExtendedFloatingActionButton(
-                        onClick = {
-                            viewModel.upsertNote(
-                                title = title.ifEmpty { "Untitled" },
-                                content = content,
-                                existing = existingNote,
-                                imageUris = imageUris
-                            )
-                            navController.popBackStack()
-                        },
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ) {
-                        Icon(Icons.Filled.Add, "Save")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Save Note", fontWeight = FontWeight.Bold)
-                    }
-                    
                     // Add text button
                     if (!showTextInput) {
                         ExtendedFloatingActionButton(

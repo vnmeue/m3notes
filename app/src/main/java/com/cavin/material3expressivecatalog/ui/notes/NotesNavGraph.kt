@@ -35,6 +35,18 @@ fun NavGraphBuilder.notesGraph(
             NotesListScreen(navController = navController)
         }
         composable(
+            route = "note_preview/{id}",
+            arguments = listOf(
+                navArgument("id") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id") ?: -1
+            NotePreviewScreen(
+                noteId = id,
+                navController = navController
+            )
+        }
+        composable(
             route = "note_editor?id={id}&imageUri={imageUri}",
             arguments = listOf(
                 navArgument("id") { type = NavType.IntType; defaultValue = -1 },

@@ -23,10 +23,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,6 +44,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.Button
@@ -53,8 +57,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -184,16 +191,52 @@ fun NotesListScreen(navController: NavController, viewModel: NotesViewModel = hi
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(notes, key = { it.id }) { note ->
-                    Card(
-                        shape = MaterialTheme.shapes.large,
-                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .clickable { navController.navigate("note_editor?id=${note.id}") }
-                    ) {
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { dismissValue ->
+                            if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                                viewModel.deleteNote(note)
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                    )
+                    
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            val color = when (dismissState.targetValue) {
+                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
+                                else -> MaterialTheme.colorScheme.surface
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(color, RoundedCornerShape(12.dp))
+                                    .padding(16.dp),
+                                contentAlignment = androidx.compose.ui.Alignment.CenterEnd
+                            ) {
+                                if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
+                                    Icon(
+                                        Icons.Filled.Delete,
+                                        "Delete",
+                                        tint = MaterialTheme.colorScheme.onError,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                            }
+                        },
+                        content = {
+                            Card(
+                                shape = MaterialTheme.shapes.large,
+                                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                modifier = Modifier
+                                    .padding(horizontal = 12.dp)
+                                    .clickable { navController.navigate("note_preview/${note.id}") }
+                            ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -256,7 +299,7 @@ fun NotesListScreen(navController: NavController, viewModel: NotesViewModel = hi
                                         if (imagesToShow.size > 1) {
                                             Card(
                                                 modifier = Modifier
-                                                    .align(Alignment.BottomEnd)
+                                                    .align(androidx.compose.ui.Alignment.BottomEnd)
                                                     .padding(4.dp),
                                                 colors = CardDefaults.cardColors(
                                                     containerColor = MaterialTheme.colorScheme.primary
@@ -275,7 +318,9 @@ fun NotesListScreen(navController: NavController, viewModel: NotesViewModel = hi
                                 }
                             }
                         }
-                    }
+                            }
+                        }
+                    )
                 }
             }
         }
